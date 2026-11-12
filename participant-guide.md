@@ -1023,15 +1023,31 @@ development guide.
 
 ### 2. Build the Finished Images and Install Once
 
-Build both images, then install only if both builds succeed:
+Save the Dev Container's working cluster connection and check it:
+
+```sh cwd=kagent
+(umask 077; kubectl --context kind-kagent config view --minify --flatten --raw > /tmp/contribfest-kubeconfig) &&
+chmod 600 /tmp/contribfest-kubeconfig &&
+KUBECONFIG=/tmp/contribfest-kubeconfig kubectl get nodes
+```
+
+Expect a Ready node before continuing. This file contains cluster credentials;
+keep it out of Git.
+
+Build both images, then install using that connection:
 
 ```sh cwd=kagent
 make build-controller build-ui VERSION=0.0.0-contribfest AWK=awk BUILD_PROTO_GENERATE= &&
-make kagent-cli-deploy VERSION=0.0.0-contribfest AWK=awk BUILD_PROTO_GENERATE=
+make -o use-kind-cluster kagent-cli-deploy VERSION=0.0.0-contribfest AWK=awk BUILD_PROTO_GENERATE= KIND_KUBECONFIG=/tmp/contribfest-kubeconfig
 ```
 
 The installer sets up the CLI, charts, PostgreSQL, Substrate, and certificates.
 No separate UI production build or rollout restart is needed.
+The `-o use-kind-cluster` option skips kubeconfig regeneration, which would
+replace the Dev Container's reachable API address with host loopback.
+
+If installation fails after the images built, fix the error and retry only
+the second command; no image rebuild is needed.
 
 ### 3. Check the Installation
 

@@ -24,6 +24,9 @@ Choose either environment; both use the kagent repository's Dev Container:
 
 Use `main` for both environments. Follow the [participant guide](participant-guide.md)
 for automatic Kind setup and browser port forwarding.
+The installation commands preserve the Dev Container's working kubeconfig
+and skip `use-kind-cluster` so the installer does not replace its API address
+with an unreachable loopback address.
 Codespaces setup still needs an end-to-end presenter rehearsal.
 
 ## Website

@@ -25,8 +25,12 @@ test('workshop builds only required images and installs once after the code exer
   assert.doesNotMatch(guide, /ccb2dd350e06be990618f3e464fbb07d0d67ca3d|pinned source|pinned workshop|updates have been merged/);
   assert.match(setup, /make build-golang-adk build-claude-harness build-codex-harness VERSION=0\.0\.0-contribfest/);
   assert.doesNotMatch(setup, /make (?:kagent-cli-deploy|build-controller|build-ui)\b/);
-  assert.match(installation, /make build-controller build-ui VERSION=0\.0\.0-contribfest AWK=awk BUILD_PROTO_GENERATE= &&\nmake kagent-cli-deploy/);
-  assert.equal((all.match(/^make kagent-cli-deploy\b/gm) ?? []).length, 1);
+  assert.match(installation, /kubectl --context kind-kagent config view --minify --flatten --raw > \/tmp\/contribfest-kubeconfig/);
+  assert.match(installation, /chmod 600 \/tmp\/contribfest-kubeconfig/);
+  assert.match(installation, /KUBECONFIG=\/tmp\/contribfest-kubeconfig kubectl get nodes/);
+  assert.match(installation, /make build-controller build-ui VERSION=0\.0\.0-contribfest AWK=awk BUILD_PROTO_GENERATE= &&\nmake -o use-kind-cluster kagent-cli-deploy VERSION=0\.0\.0-contribfest AWK=awk BUILD_PROTO_GENERATE= KIND_KUBECONFIG=\/tmp\/contribfest-kubeconfig/);
+  assert.equal((all.match(/^make -o use-kind-cluster kagent-cli-deploy\b/gm) ?? []).length, 1);
+  assert.doesNotMatch(all, /^make kagent-cli-deploy\b/gm);
   assert.equal((all.match(/^make build-golang-adk\b/gm) ?? []).length, 1);
   assert.equal((all.match(/^make build-controller build-ui\b/gm) ?? []).length, 1);
   assert.equal((all.match(/^corepack yarn install --immutable$/gm) ?? []).length, 1);
@@ -166,7 +170,7 @@ test('workshop navigation, controls, persistence, and responsive layout', async 
       }
       if (id === 'deploy-controller') {
         const content = await page.locator(`#${id}`).textContent();
-        assert.match(content, /make kagent-cli-deploy/);
+        assert.match(content, /make -o use-kind-cluster kagent-cli-deploy/);
         assert.match(content, /make build-controller build-ui/);
         assert.match(content, /No separate UI production build or rollout restart is needed/);
         assert.doesNotMatch(content, /kubectl[^\n]*patch deployment/);
