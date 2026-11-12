@@ -7,6 +7,7 @@ import go from 'highlight.js/lib/languages/go';
 import bash from 'highlight.js/lib/languages/bash';
 import yaml from 'highlight.js/lib/languages/yaml';
 import protobuf from 'highlight.js/lib/languages/protobuf';
+import QRCode from 'qrcode';
 
 const root = new URL('../', import.meta.url);
 const read = (name) => readFile(new URL(name, root), 'utf8');
@@ -87,6 +88,11 @@ const html = template.replace('<!-- NAVIGATION -->', navigation).replace('<!-- L
   .replace('/* STYLES */', await read('site/styles.css')).replace('/* APPLICATION */', await read('site/app.js'));
 await mkdir(new URL('dist/assets/', root), { recursive: true });
 await writeFile(new URL('dist/index.html', root), html);
+const workshopUrl = 'https://kagent-contribfest-2026.pages.dev/';
+const qr = (await QRCode.toString(workshopUrl, { type: 'svg', errorCorrectionLevel: 'M', margin: 4 }))
+  .replace('<svg ', '<svg class="qr" role="img" aria-label="QR code to open the workshop" ');
+const intro = (await read('site/intro.html')).replace('<!-- WORKSHOP_QR -->', qr).replaceAll('WORKSHOP_URL', workshopUrl);
+await writeFile(new URL('dist/intro.html', root), intro);
 await copyFile(new URL('participant-guide.md', root), new URL('dist/participant-guide.md', root));
 await copyFile(new URL('site/kagent.svg', root), new URL('dist/assets/kagent.svg', root));
 await copyFile(new URL('node_modules/lucide/dist/umd/lucide.min.js', root), new URL('dist/assets/lucide.js', root));

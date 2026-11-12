@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Welcome · kagent ContribFest</title>
+  <style>
+    @font-face{font-family:"DM Sans";src:url("assets/dm-sans-400.woff2") format("woff2");font-weight:400;font-display:swap}
+    @font-face{font-family:"DM Sans";src:url("assets/dm-sans-700.woff2") format("woff2");font-weight:700;font-display:swap}
+    *{box-sizing:border-box}
+    body{margin:0;background:#e8eee9;color:#19251d;font-family:"DM Sans",sans-serif}
+    main{min-height:100svh;display:grid;grid-template-columns:1fr 1fr;align-content:center;align-items:center;column-gap:clamp(24px,5vw,100px);row-gap:24px;padding:clamp(24px,4svh,64px);max-width:1800px;margin:auto}
+    .brand{width:clamp(132px,16vw,240px);height:auto;filter:brightness(0)}
+    .eyebrow{margin:32px 0 16px;font-size:clamp(20px,2.4vw,36px);color:#6d28d9}
+    h1{font-size:clamp(48px,6.8vw,112px);line-height:1.04;letter-spacing:-.05em;margin:0 0 24px}
+    .instruction{font-size:clamp(22px,2.5vw,40px);margin:0}
+    .qr{display:block;width:100%;max-width:min(44vw,64svh);height:auto;justify-self:center}
+    .address{grid-column:1/-1;font-size:clamp(18px,3vw,48px);overflow-wrap:anywhere;color:inherit;text-underline-offset:.2em}
+    .controls{grid-column:1/-1;font-size:16px;margin:0}
+    .controls a{color:#4d3a75}
+    a:focus-visible{outline:3px solid #6d28d9;outline-offset:6px}
+    @media(max-width:700px){main{grid-template-columns:1fr;gap:24px}.qr{max-width:min(100%,48svh)}h1{font-size:clamp(44px,11vw,72px)}.address,.controls{grid-column:1}}
+  </style>
+</head>
+<body>
+  <main>
+    <div>
+      <img class="brand" src="assets/kagent.svg" alt="kagent" width="240" height="73">
+      <p class="eyebrow">ContribFest</p>
+      <h1>Welcome.<br>Let's build.</h1>
+      <p class="instruction">Scan to open the workshop.</p>
+    </div>
+    <!-- WORKSHOP_QR -->
+    <a class="address" href="WORKSHOP_URL">kagent-contribfest-2026.pages.dev</a>
+    <p class="controls"><a href="./">Open workshop</a> · Esc to return</p>
+  </main>
+  <script>
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !event.altKey && !event.ctrlKey && !event.metaKey) location.href = './';
+    });
+  </script>
+</body>
+</html>

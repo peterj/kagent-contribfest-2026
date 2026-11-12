@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { readFile, mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright';
 import { marked } from 'marked';
+import jsQR from 'jsqr';
 
 test('workshop builds only required images and installs once after the code exercises', async () => {
   const guide = await readFile(new URL('../participant-guide.md', import.meta.url), 'utf8');
@@ -224,6 +225,39 @@ test('workshop navigation, controls, persistence, and responsive layout', async 
     assert.equal(await direct.locator('#setup-panel-local').isVisible(), true);
     assert.equal(await direct.locator('#setup-panel-codespaces').isVisible(), true);
     assert.equal(await direct.locator('.setup-tablist').isVisible(), false);
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto(`http://127.0.0.1:${server.address().port}/`);
+    await page.getByRole('searchbox').fill('q');
+    await page.getByRole('searchbox').press('q');
+    assert.equal(new URL(page.url()).pathname, '/');
+    await page.getByRole('searchbox').fill('');
+    await page.getByRole('searchbox').blur();
+    await page.keyboard.press('q');
+    await page.waitForURL('**/intro.html');
+    assert.equal(await page.getByRole('heading', { name: "Welcome. Let's build." }).isVisible(), true);
+    assert.equal(await page.locator('.address').getAttribute('href'), 'https://kagent-contribfest-2026.pages.dev/');
+    const qrBounds = await page.locator('.qr').boundingBox();
+    assert.ok(qrBounds.width >= 600, 'QR should be large enough for projection');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight), false, 'Projector view should fit on one screen');
+    const pixels = await page.locator('.qr').evaluate(async (svg) => {
+      const image = new Image();
+      image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(svg))}`;
+      await image.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 800;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(image, 0, 0, 800, 800);
+      return [...ctx.getImageData(0, 0, 800, 800).data];
+    });
+    assert.equal(jsQR(new Uint8ClampedArray(pixels), 800, 800)?.data, 'https://kagent-contribfest-2026.pages.dev/');
+    await page.screenshot({ path: new URL('../test-results/intro.png', import.meta.url).pathname });
+    for (const width of [320, 768, 1920]) {
+      await page.setViewportSize({ width, height: width === 1920 ? 1080 : 900 });
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Intro overflow at ${width}px`);
+    }
+    await page.keyboard.press('Escape');
+    await page.waitForURL(`http://127.0.0.1:${server.address().port}/`);
+    assert.deepEqual(errors, []);
     await context.close();
   } finally {
     await browser?.close();

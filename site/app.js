@@ -132,6 +132,11 @@ menu.addEventListener('click', () => {
 backdrop.addEventListener('click', closeMenu);
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && sidebar.dataset.open === 'true') { closeMenu(); menu.focus(); }
+  if (event.key.toLowerCase() === 'q' && !event.altKey && !event.ctrlKey && !event.metaKey &&
+      !event.shiftKey && !event.repeat && !event.isComposing && !event.defaultPrevented &&
+      !event.target.closest('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]')) {
+    location.href = 'intro.html';
+  }
 });
 document.querySelector('#search').addEventListener('input', (event) => {
   const query = event.target.value.trim().toLowerCase();

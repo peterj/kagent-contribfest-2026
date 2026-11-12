@@ -37,6 +37,9 @@ Open the printed URL. Guide and site edits rebuild automatically; refresh the
 browser to see changes. To build for static hosting, run `npm run build` and
 publish `dist/`. You can also open `dist/index.html` directly.
 
+For the arrival screen, press **Q** in the guide or open `intro.html`.
+It shows a large QR code for the public workshop URL. Press **Esc** to return.
+
 The participant Markdown is the guide content source. Site code lives in `site/`
 and the build script in `scripts/`.
 
